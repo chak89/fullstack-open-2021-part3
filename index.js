@@ -33,4 +33,12 @@ app.get('/api/persons', (request, response) => {
     response.json(persons)
 })
 
+app.get('/info', (request, response) => {
+    const responseString = `Phonebook has info for ${persons.length} people
+                            <br><br>${new Date()}`
+
+/*     response.setHeader('Content-type','text/html') */
+    response.send(responseString);
+
+})
 
