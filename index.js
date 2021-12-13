@@ -5,6 +5,8 @@ const app = express()
 app.use(express.json())
 app.use(morgan('tiny'))
 
+//Display data sent in the HTTP POST request.
+morgan.token('body',(req) => JSON.stringify(req.body))
 
 const PORT = 3001
 app.listen(PORT, () => {
@@ -78,7 +80,7 @@ app.delete('/api/persons/:id' , (request, response) => {
 })
 
 //New phonebook entries can be added by making HTTP POST requests
-app.post('/api/persons', (request, response) => {
+app.post('/api/persons', morgan(':body'), (request, response) => {
     const personEntry = request.body
 
     if(!personEntry.name && !personEntry.number) {
