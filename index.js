@@ -1,16 +1,18 @@
 const express = require('express')
 const morgan = require('morgan')
-const app = express()
+const cors = require('cors')
 
+const app = express()
+app.use(cors())
 app.use(express.json())
 app.use(morgan('tiny'))
 
 //Display data sent in the HTTP POST request.
 morgan.token('body',(req) => JSON.stringify(req.body))
 
-const PORT = 3001
+const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`)
+  console.log(`Server running on port ${PORT}`)
 })
 
 let persons = [
