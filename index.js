@@ -1,6 +1,8 @@
 const express = require('express')
 const app = express()
 
+app.use(express.json())
+
 const PORT = 3001
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
@@ -29,6 +31,11 @@ let persons = [
     }
 ]
 
+//Generate a random ID in defined range
+const getRandomId = () => {
+    return Math.floor(Math.random() * 100000) + 1
+}
+
 //Get all
 app.get('/api/persons', (request, response) => {
     response.json(persons)
@@ -54,7 +61,7 @@ app.get('/api/persons/:id', (request, response) => {
     }
 })
 
-
+// Process HTTP DELETE request, delete a single resource
 app.delete('/api/persons/:id' , (request, response) => {
     const id = Number(request.params.id)
     const person = persons.find(p => p.id === id)
@@ -65,4 +72,30 @@ app.delete('/api/persons/:id' , (request, response) => {
     } else {
         response.status(404).end()
     }
+})
+
+//New phonebook entries can be added by making HTTP POST requests
+app.post('/api/persons', (request, response) => {
+    const personEntry = request.body
+
+    if(!personEntry.name && !personEntry.number) {
+        return response.status(404).json({
+            error: 'name and/or number is missing'
+        })
+    }
+
+    //Check if the name already exists in the phonebook
+    if(persons.find(p => p.name === personEntry.name)) {
+        return response.status(406).json({
+            error: 'name already exist'
+        })
+    }
+
+    const person = {
+        "id" : getRandomId(),
+        "name" : personEntry.name,
+        "number" : personEntry.number
+    }
+    persons = persons.concat(person)
+    return response.json(person)
 })
