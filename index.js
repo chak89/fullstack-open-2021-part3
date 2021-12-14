@@ -1,6 +1,8 @@
+require('dotenv').config()
 const express = require('express')
 const morgan = require('morgan')
 const cors = require('cors')
+const Person = require('./models/person')
 
 const app = express()
 app.use(express.static('build'))
@@ -9,14 +11,14 @@ app.use(express.json())
 app.use(morgan('tiny'))
 
 //Display data sent in the HTTP POST request.
-morgan.token('body',(req) => JSON.stringify(req.body))
+morgan.token('body', (req) => JSON.stringify(req.body))
 
 const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`)
+    console.log(`Server running on port ${PORT}`)
 })
 
-let persons = [
+/* let persons = [
     {
         "id": 1,
         "name": "Arto Hellas",
@@ -37,7 +39,7 @@ let persons = [
         "name": "Mary Poppendieck",
         "number": "39-23-6423122"
     }
-]
+] */
 
 //Generate a random ID in defined range
 const getRandomId = () => {
@@ -46,7 +48,9 @@ const getRandomId = () => {
 
 //Get all
 app.get('/api/persons', (request, response) => {
-    response.json(persons)
+    Person.find({}).then(person => {
+        response.json(person)
+    })
 })
 
 app.get('/info', (request, response) => {
@@ -70,11 +74,11 @@ app.get('/api/persons/:id', (request, response) => {
 })
 
 // Process HTTP DELETE request, delete a single resource
-app.delete('/api/persons/:id' , (request, response) => {
+app.delete('/api/persons/:id', (request, response) => {
     const id = Number(request.params.id)
     const person = persons.find(p => p.id === id)
 
-    if(person) {
+    if (person) {
         persons = persons.filter(p => p.id !== id)
         response.status(204).end()
     } else {
@@ -86,24 +90,28 @@ app.delete('/api/persons/:id' , (request, response) => {
 app.post('/api/persons', morgan(':body'), (request, response) => {
     const personEntry = request.body
 
-    if(!personEntry.name && !personEntry.number) {
+/*     if (!personEntry.name && !personEntry.number) {
         return response.status(404).json({
             error: 'name and/or number is missing'
         })
-    }
+    } */
 
     //Check if the name already exists in the phonebook
-    if(persons.find(p => p.name === personEntry.name)) {
+/*     if (persons.find(p => p.name === personEntry.name)) {
         return response.status(406).json({
             error: 'name already exist'
         })
-    }
+    } */
 
-    const person = {
-        "id" : getRandomId(),
-        "name" : personEntry.name,
-        "number" : personEntry.number
-    }
-    persons = persons.concat(person)
-    return response.json(person)
+    const person = new Person({
+        "id": getRandomId(),
+        "name": personEntry.name,
+        "number": personEntry.number
+    })
+
+
+    //Save person to MongoDB
+    person.save().then(savedPerson => {
+        return response.json(savedPerson)
+    })
 })
