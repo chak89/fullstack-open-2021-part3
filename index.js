@@ -24,19 +24,21 @@ app.listen(PORT, () => {
 
 //Get all
 app.get('/api/persons', (request, response, next) => {
-    Person.find({}).then(person => {
-        response.json(person)
-    })
+    Person.find({})
+        .then(person => {
+            response.json(person)
+        })
         .catch(error => next(error))
 })
 
 //Show some basic info
 app.get('/info', (request, response, next) => {
-    Person.find({}).then(persons => {
-        const responseString = `Phonebook has info for ${persons.length} people
+    Person.find({})
+        .then(persons => {
+            const responseString = `Phonebook has info for ${persons.length} people
         <br><br>${new Date()}`
-        response.send(responseString);
-    })
+            response.send(responseString)
+        })
         .catch(error => next(error))
 })
 
@@ -50,9 +52,10 @@ app.get('/api/persons/:id', (request, response, next) => {
 
 // Process HTTP DELETE request, delete a single resource
 app.delete('/api/persons/:id', (request, response, next) => {
-    Person.findByIdAndRemove(request.params.id).then(result => {
-        response.status(204).end()
-    })
+    Person.findByIdAndRemove(request.params.id)
+        .then(result => {
+            response.status(204).end()
+        })
         .catch(error => next(error))
 })
 
@@ -62,15 +65,16 @@ app.post('/api/persons', morgan(':body'), (request, response, next) => {
     const personEntry = request.body
 
     const person = new Person({
-        "name": personEntry.name,
-        "number": personEntry.number
+        'name': personEntry.name,
+        'number': personEntry.number
     })
 
     //Save person to MongoDB
-    person.save().then(savedPerson => {
-        return response.json(savedPerson)
-    })
-    .catch(error => next(error))
+    person.save()
+        .then(savedPerson => {
+            return response.json(savedPerson)
+        })
+        .catch(error => next(error))
 })
 
 //Update individual resource
@@ -94,6 +98,7 @@ const errorHandler = (error, request, response, next) => {
     else if (error.name === 'ValidationError') {
         return response.status(400).json({ error: error.message })
     }
+    next(error)
 }
 
 // this has to be the last loaded middleware, so that next() inside other middelware will call this
