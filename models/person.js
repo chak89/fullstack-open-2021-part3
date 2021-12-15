@@ -1,5 +1,8 @@
 const mongoose = require('mongoose')
 
+//mongoose-unique-validator is a plugin which adds pre-save validation for unique fields within a Mongoose schema.
+const uniqueValidator = require('mongoose-unique-validator');
+
 const url = process.env.MONGODB_URI
 
 console.log('connecting to', url)
@@ -13,8 +16,16 @@ mongoose.connect(url)
     })
 
 const personSchema = new mongoose.Schema({
-    name: String,
-    number: String,
+    name: {
+        type: String,
+        minlength: 3,
+        unique: true,
+        required: true
+    },
+    number: { 
+        type: String,
+        minlength: 8,
+        required: true }
 })
 
 personSchema.set('toJSON', {

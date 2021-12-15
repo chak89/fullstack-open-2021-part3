@@ -21,6 +21,13 @@ const App = () => {
     personService
       .getAll()
       .then(responseData => setPersons(responseData))
+      .catch(error => {
+        console.log(error.response.data.error)
+        setNotifications(error.response.data.error)
+        setTimeout(() => {
+          setNotifications(null)
+        }, 5000)
+      })
   }, [])
 
 
@@ -54,6 +61,7 @@ const App = () => {
             }, 5000)
           })
           .catch( error => {
+            console.log(error.response.data)
             setNotifications(`Information of ${changedPerson.name} has already been removed from server`)
             setPersons(persons.filter(p => p.id !== changedPerson.id))
             setTimeout(() => {
@@ -76,6 +84,13 @@ const App = () => {
             setNotifications(null)
           }, 5000)
         })
+        .catch(error => {
+          console.log(error.response.data.error)
+          setNotifications(error.response.data.error)
+          setTimeout(() => {
+            setNotifications(null)
+          }, 5000)
+        })
     }
 
     setNewName('')
@@ -92,7 +107,13 @@ const App = () => {
           setPersons(persons.filter(p => p.id !== person.id))
           console.log('Delete successful')
         })
-        .catch(err => console.log('error:', err))
+        .catch(error => {
+          console.log(error.response.data.error)
+          setNotifications(error.response.data.error)
+          setTimeout(() => {
+            setNotifications(null)
+          }, 5000)
+        })
     }
   }
 

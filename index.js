@@ -27,7 +27,7 @@ app.get('/api/persons', (request, response, next) => {
     Person.find({}).then(person => {
         response.json(person)
     })
-    .catch(error => next(error))
+        .catch(error => next(error))
 })
 
 //Show some basic info
@@ -37,7 +37,7 @@ app.get('/info', (request, response, next) => {
         <br><br>${new Date()}`
         response.send(responseString);
     })
-    .catch(error => next(error))
+        .catch(error => next(error))
 })
 
 // Fetch single resource
@@ -45,15 +45,15 @@ app.get('/api/persons/:id', (request, response, next) => {
     Person.findById(request.params.id).then(result => {
         response.json(result)
     })
-    .catch(error => next(error))
+        .catch(error => next(error))
 })
 
 // Process HTTP DELETE request, delete a single resource
 app.delete('/api/persons/:id', (request, response, next) => {
-    Person.findByIdAndRemove(request.params.id).then( result => {
+    Person.findByIdAndRemove(request.params.id).then(result => {
         response.status(204).end()
     })
-    .catch(error => next(error))
+        .catch(error => next(error))
 })
 
 //New phonebook entries can be added by making HTTP POST requests
@@ -73,22 +73,28 @@ app.post('/api/persons', morgan(':body'), (request, response, next) => {
     .catch(error => next(error))
 })
 
-
+//Update individual resource
 app.put('/api/persons/:id', (request, response, next) => {
     console.log('PUT:', request.body)
-    Person.findByIdAndUpdate(request.params.id, request.body, {new: true} )
-    .then( updatedPerson => {
-        response.json(updatedPerson)
-    })
-    .catch(error => next(error))
+    Person.findByIdAndUpdate(request.params.id, request.body, { new: true })
+        .then(updatedPerson => {
+            response.json(updatedPerson)
+        })
+        .catch(error => next(error))
 })
 
 
 //Middleware errorhandling
 const errorHandler = (error, request, response, next) => {
     console.error(error.message)
-    return response.status(400).json({ error: error.message })
-  }
-  
-  // this has to be the last loaded middleware, so that next() inside other middelware will call this
-  app.use(errorHandler)
+
+    if (error.name === 'CastError') {
+        return response.status(400).send({ error: 'malformatted id' })
+    }
+    else if (error.name === 'ValidationError') {
+        return response.status(400).json({ error: error.message })
+    }
+}
+
+// this has to be the last loaded middleware, so that next() inside other middelware will call this
+app.use(errorHandler)

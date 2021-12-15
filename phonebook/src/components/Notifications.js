@@ -6,7 +6,7 @@ const Notifications = ({notifications}) => {
     }
 
     return (
-        <div className={notifications.includes('Information') ? "notificationsError" : "notifications" }>
+        <div className={notifications.includes('Information') || notifications.includes('validation failed:') ? "notificationsError" : "notifications" }>
             {notifications}
         </div>
     )
